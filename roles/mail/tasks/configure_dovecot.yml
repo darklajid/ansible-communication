@@ -1,0 +1,21 @@
+---
+- name: Clear the dovecot dist files
+  shell: for f in `pacman -Ql dovecot | grep /etc/dovecot | cut -d" " -f2`; do [ ! -f "$f" ] || rm "$f"; done;
+
+- name: Get mail uid
+  shell: "getent passwd mail | cut -d: -f3"
+  register: maildir_uid
+
+- name: Get dspam gid
+  shell: "getent group dspam | cut -d: -f3"
+  register: maildir_gid
+
+- name: Set /var/spool/mail ownership
+  file: path=/var/spool/mail state=directory owner={{maildir_uid.stdout}} group={{maildir_gid.stdout}}
+
+- name: Copy configuration files
+  template: src={{item}} dest=/etc/dovecot mode=0644
+  with_items:
+    - dovecot/dovecot.conf
+    - dovecot/dovecot-sql.conf.ext
+  notify: restart dovecot

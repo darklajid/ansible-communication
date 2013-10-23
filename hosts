@@ -1,0 +1,2 @@
+[communication]
+archtest	ansible_python_interpreter=/usr/bin/python2	ansible_ssh_host=192.168.122.69

@@ -1,0 +1,48 @@
+---
+- name: Copy configuration files
+  template: src={{item}} dest=/etc/opendkim owner=opendkim group=mail mode=0644
+  with_items:
+    - opendkim/opendkim.conf
+    - opendkim/TrustedHosts
+
+- name: Set /etc/opendkim owner
+  file: path=/etc/opendkim state=directory owner=opendkim group=mail mode=0700
+
+- name: Create keys directory
+  file: path=/etc/opendkim/keys state=directory owner=opendkim group=root mode=0770
+
+- name: Create spool directory
+  file: path=/var/spool/postfix/opendkim state=directory owner=opendkim group=postfix mode=0770
+
+- name: Create run directory
+  file: path=/var/run/opendkim state=directory owner=opendkim group=root mode=0770
+
+- name: Configure KeyTable
+  template: src=opendkim/KeyTable dest=/etc/opendkim owner=opendkim group=root mode=0644
+  with_flattened: lookup('pipe', 'ls opendkim/keys/')
+
+- name: Configure SigningTable
+  template: src=opendkim/SigningTable dest=/etc/opendkim owner=opendkim group=root mode=0644
+  with_flattened: lookup('pipe', 'ls opendkim/keys/')
+
+- name: Create domain folders
+  # TODO: mode?
+  file: path=/etc/opendkim/keys/{{item}} state=directory owner=opendkim group=root
+  with_lines: ls opendkim/keys/
+
+- name: Copy txt files
+  copy: src=opendkim/keys/{{item}}/default.txt dest=/etc/opendkim/keys/{{item}} owner=opendkim group=root mode=0600
+  with_lines: ls opendkim/keys/
+
+- name: Copy keys
+  copy: src=opendkim/keys/{{item}}/default.private.enc dest=/etc/opendkim/keys/{{item}} owner=opendkim group=root mode=0600
+  with_lines: ls opendkim/keys/
+
+- name: Decrypt keys
+  shell: openssl aes-256-cbc -d -pass "file:/root/decrypt_password" -in "/etc/opendkim/keys/{{item}}/default.private.enc" -out "/etc/opendkim/keys/{{item}}/default.private"
+  with_lines: ls opendkim/keys/
+
+- name: Correct key permissions
+  file: path=/etc/opendkim/keys/{{item}}/default.private owner=opendkim group=root mode=0600
+  with_lines: ls opendkim/keys/
+  notify: restart opendkim 

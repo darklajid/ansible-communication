@@ -1,0 +1,71 @@
+---
+- name: Change the owner of /var/lib/postgres to .. postgres
+  file: path=/var/lib/postgres owner=postgres group=postgres state=directory
+
+- name: Init Postgresql data folder
+  command: initdb -E UTF8 -A peer -D '/var/lib/postgres/data'
+           creates=/var/lib/postgres/data
+  sudo: True
+  sudo_user: postgres
+
+- name: Start postgresql
+  service: enabled=yes state=started name=postgresql
+
+- name: Create mailserver DB
+  postgresql_db: name=mailserver
+                 encoding='UTF-8'
+                 template='template0'
+  sudo: True
+  sudo_user: postgres
+
+- name: Create database tables for domains and users
+  command: psql mailserver -c "{{ lookup('file', 'pgsql/mailserver_schema.sql') }}"
+  sudo: True
+  sudo_user: postgres
+
+- name: Create database tables for dspam
+  command: psql mailserver -c "{{ lookup('file', 'pgsql/pgsql_objects.sql') }}"
+  sudo: True
+  sudo_user: postgres
+
+- name: Create database roles
+  command: psql mailserver -c "do $$begin if not exists (select rolname from pg_catalog.pg_roles where rolname='{{item.role}}') then create role {{item.role}} {{item.opts}}; end if; end$$;"
+  sudo: True
+  sudo_user: postgres
+  with_items:
+    - { role: 'mail_select', opts: '' }
+    - { role: 'postfix', opts: 'WITH LOGIN' }
+    - { role: 'dovecot', opts: 'WITH LOGIN' }
+    - { role: 'dspam', opts: 'WITH LOGIN' }
+    - { role: 'mail', opts: 'WITH LOGIN' }
+
+- name: Grant privileges
+  command: psql mailserver -c "GRANT {{item.privs}} ON {{item.table}} TO {{item.role}}"
+  sudo: True
+  sudo_user: postgres
+  with_items:
+    # Grant privileges to the 'base role'
+    - { role: 'mail_select', privs: 'SELECT', table: 'virtual_domains' }
+    - { role: 'mail_select', privs: 'SELECT', table: 'virtual_aliases' }
+    - { role: 'mail_select', privs: 'SELECT', table: 'virtual_users' }
+    # Grant privileges for dspam only
+    #- { role: 'dspam', privs: 'SELECT', table: 'virtual_users' }
+    #- { role: 'dspam', privs: 'ALL', table: 'dspam_preferences' }
+    #- { role: 'dspam', privs: 'ALL', table: 'dspam_signature_data' }
+    #- { role: 'dspam', privs: 'ALL', table: 'dspam_stats' }
+    #- { role: 'dspam', privs: 'ALL', table: 'dspam_token_data' }
+    #- { role: 'dspam', privs: 'ALL', table: 'dspam_virtual_uids' }
+    - { role: 'mail', privs: 'SELECT', table: 'virtual_users' }
+    - { role: 'mail', privs: 'ALL', table: 'dspam_preferences' }
+    - { role: 'mail', privs: 'ALL', table: 'dspam_signature_data' }
+    - { role: 'mail', privs: 'ALL', table: 'dspam_stats' }
+    - { role: 'mail', privs: 'ALL', table: 'dspam_token_data' }
+    - { role: 'mail', privs: 'ALL', table: 'dspam_virtual_uids' }
+
+- name: Grant access to the base role
+  command: psql mailserver -c "GRANT {{item.base_role}} TO {{item.role}}"
+  sudo: True
+  sudo_user: postgres
+  with_items:
+    - { role: 'postfix', base_role: 'mail_select' }
+    - { role: 'dovecot', base_role: 'mail_select' }

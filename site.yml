@@ -1,0 +1,12 @@
+---
+- hosts: communication
+  sudo: True
+  sudo_user: root
+
+  vars_prompt:
+    - name: decrypt_password
+      prompt: "Please provide the openssl passphrase to decrypt secrets"
+      private: yes
+
+  roles:
+    - mail

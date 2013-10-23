@@ -1,0 +1,9 @@
+---
+- name: Copy configuration files
+  template: src={{item}} dest=/etc/dspam owner=mail group=mail mode=0644
+  with_items:
+    - dspam/dspam.conf
+    - dspam/default.prefs
+
+- name: Add dspam to group mail
+  user: name=dspam groups=dspam,mail

@@ -1,0 +1,7 @@
+driver = pgsql
+connect = dbname=mailserver user=dovecot
+default_pass_scheme = SSHA512
+
+password_query = SELECT vu.username, vu.password FROM virtual_users vu LEFT JOIN virtual_domains vd ON vu.domain_id = vd.id WHERE vu.username='%n' AND vd.name='%d';
+user_query = SELECT {{maildir_uid.stdout}} as uid, {{maildir_gid.stdout}} as gid, '/var/spool/mail/%d/%n/' as home, 'maildir:/var/spool/mail/%d/%n/Maildir' as mail, CONCAT('*:bytes=', vu.quota_limit_bytes) as quota_rule FROM virtual_users vu LEFT JOIN virtual_domains vd ON vu.domain_id = vd.id WHERE vu.username='%n' AND vd.name='%d';
+

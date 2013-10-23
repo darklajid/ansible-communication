@@ -1,0 +1,3 @@
+---
+- name: Enable cron
+  service: enabled=yes state=started name=cronie

@@ -1,0 +1,3 @@
+{% for host in item.split('\n') %}
+default._domainkey.{{host}} {{host}}:mail:/etc/opendkim/keys/{{host}}/default.private
+{% endfor %}

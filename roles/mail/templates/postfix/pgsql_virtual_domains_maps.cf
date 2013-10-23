@@ -1,0 +1,3 @@
+hosts = /var/run/postgresql/
+dbname = mailserver
+query = SELECT name FROM virtual_domains WHERE name = '%s'

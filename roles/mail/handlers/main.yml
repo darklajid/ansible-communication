@@ -1,0 +1,12 @@
+---
+- name: restart postfix
+  service: name=postfix enabled=yes state=restarted
+
+- name: restart dovecot
+  service: name=dovecot enabled=yes state=restarted
+
+- name: restart postgrey
+  service: name=postgrey enabled=yes state=restarted
+
+- name: restart opendkim 
+  service: name=opendkim enabled=yes state=restarted

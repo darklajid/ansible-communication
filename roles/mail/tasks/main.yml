@@ -1,0 +1,27 @@
+---
+- name: Test decryption key _first_
+  local_action: raw openssl aes-256-cbc -d -pass stdin -in "{{item}}" > /dev/null <<< "{{decrypt_password}}"
+  with_first_found:
+    - files: "{{smtpd_host}}.key.enc"
+      paths: ssl/private
+
+- name: Install required packages
+  pacman: name=sudo,postgresql,python2-psycopg2,postfix,dovecot,pigeonhole,clucene,opendkim,dspam,postgrey state=installed update_cache=yes
+
+- include: install_dovecot2-antispam_from_AUR.yml
+
+- name: Create file with decryption key
+  template: src=decrypt_password dest=/root/decrypt_password owner=root group=root mode=0400
+
+- include: configure_ssl.yml
+- include: configure_cron.yml
+- include: configure_postgresql.yml
+- include: configure_dspam.yml
+- include: configure_opendkim.yml
+- include: configure_postgrey.yml
+- include: configure_dovecot.yml
+- include: configure_postfix.yml
+
+- name: Delete file with decryption key
+  file: path=/root/decrypt_password state=absent
+  always_run: true

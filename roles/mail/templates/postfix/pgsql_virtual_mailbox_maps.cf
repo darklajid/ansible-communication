@@ -1,0 +1,3 @@
+hosts = /var/run/postgresql/
+dbname = mailserver
+query = SELECT CONCAT(vu.username, '@', vd.name) as user FROM virtual_users vu LEFT JOIN virtual_domains vd ON vu.domain_id = vd.id WHERE CONCAT(vu.username, '@', vd.name) = '%s'

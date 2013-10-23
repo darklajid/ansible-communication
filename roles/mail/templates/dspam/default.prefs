@@ -1,0 +1,13 @@
+# Default preferences for DSPAM
+
+trainingMode=TEFT
+spamAction=deliver
+spamSubject=[SPAM]
+enableBNR=on
+enableWhitelist=on
+statisticalSedation=5
+signatureLocation=headers
+whitelistThreshold=10
+showFactors=on
+~                                                                                                                      
+~                                                                                                   

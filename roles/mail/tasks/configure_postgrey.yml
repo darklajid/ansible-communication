@@ -1,0 +1,4 @@
+---
+- name: Copy service file
+  template: src=postgrey/postgrey.service dest=/usr/lib/systemd/system/postgrey.service mode=0644
+  notify: restart postgrey
