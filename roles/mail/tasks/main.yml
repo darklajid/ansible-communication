@@ -8,7 +8,7 @@
 - name: Install required packages
   pacman: name=sudo,postgresql,python2-psycopg2,postfix,dovecot,pigeonhole,clucene,opendkim,dspam,postgrey state=installed update_cache=yes
 
-- include: install_dovecot2-antispam_from_AUR.yml
+- include: ../../common/tasks/install_from_aur_build_local.yml package=dovecot2-antispam-hg
 
 - name: Create file with decryption key
   template: src=decrypt_password dest=/root/decrypt_password owner=root group=root mode=0400
