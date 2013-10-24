@@ -1,0 +1,30 @@
+---
+- name: Install build requirements
+  pacman: name=binutils,fakeroot,mercurial,git,automake,autoconf,gcc,make state=installed
+
+- name: Create a temporary local build path for this package
+  file: path=/tmp/build/{{package}} state=directory
+  sudo: false
+
+- name: Grab the tarball from AUR
+  raw: cd /tmp/build/{{package}} && curl -O https://aur.archlinux.org/packages/`echo {{package}} | cut -c 1-2`/{{package}}/{{package}}.tar.gz
+  sudo: false
+
+- name: Extract the tarball
+  raw: cd /tmp/build/{{package}} && tar xzf {{package}}.tar.gz
+  sudo: false
+
+- name: Delete the tarball
+  raw: rm /tmp/build/{{package}}/{{package}}.tar.gz
+  sudo: false
+
+- name: Build the package
+  raw:  cd /tmp/build/{{package}}/* && makepkg -rs
+  sudo: false
+
+- name: Install package
+  raw: yes | pacman -U /tmp/build/{{package}}/*/{{package}}*.xz
+
+- name: Clean up the build folder
+  file: path=/tmp/build/{{package}} state=absent
+  always_run: true

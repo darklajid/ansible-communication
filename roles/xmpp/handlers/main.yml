@@ -1,0 +1,6 @@
+---
+- name: restart dovecot
+  service: name=dovecot enabled=yes state=restarted
+
+- name: restart prosody
+  service: name=prosody enabled=yes state=restarted

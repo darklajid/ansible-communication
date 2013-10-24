@@ -1,0 +1,41 @@
+---
+- name: Install required packages
+  pacman: name=prosody,lua51-sec,lua51-zlib,lua51-socket state=installed update_cache=yes
+
+- name: Create mod_auth_dovecot directory
+  file: path=/usr/lib/prosody/modules/mod_auth_dovecot state=directory
+
+- name: Grab mod_auth_dovecot.lua
+  get_url: url=http://prosody-modules.googlecode.com/hg/mod_auth_dovecot/auth_dovecot/mod_auth_dovecot.lua dest=/usr/lib/prosody/modules/mod_auth_dovecot
+
+- name: Grab sasl_dovecot.lib.lua
+  get_url: url=http://prosody-modules.googlecode.com/hg/mod_auth_dovecot/auth_dovecot/sasl_dovecot.lib.lua dest=/usr/lib/prosody/modules/mod_auth_dovecot
+
+- name: Create spool directory for dovecot
+  file: path=/var/spool/prosody state=directory
+
+- name: Create spool private directory for dovecot
+  file: path=/var/spool/prosody/private state=directory owner=prosody mode=0700
+
+- name: Create dovecot configuration extension for our auth socket
+  template: src=dovecot_auth.conf dest=/etc/dovecot/conf.d/90-prosody.conf mode=0644
+  notify: restart dovecot
+
+- name: Copy the certificate files
+  copy: src={{item}} dest=/etc/prosody/certs owner=prosody group=prosody mode=0640
+  with_fileglob:
+  - certs/*
+
+- name: Decrypt certificate keys
+  shell: openssl aes-256-cbc -d -pass "file:/root/decrypt_password" -in "/etc/prosody/{{item}}" -out "/etc/prosody/`echo {{item}} | sed 's/.enc$//'`"
+  with_lines: ls certs/*.enc
+
+- name: Correct file ownership
+  shell: "chown prosody:prosody /etc/prosody/certs/*"
+
+- name: Correct file permissions
+  shell: "chmod 0600 /etc/prosody/certs/*"
+
+- name: Install configuration file
+  template: src=prosody.cfg.lua dest=/etc/prosody owner=root group=root mode=0644
+  notify: restart prosody

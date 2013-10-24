@@ -8,5 +8,31 @@
       prompt: "Please provide the openssl passphrase to decrypt secrets"
       private: yes
 
+  pre_tasks:
+    - name: "Test decryption key: Fail Fast (TM)"
+      local_action: raw echo {{decrypt_password}} | openssl aes-256-cbc -d -pass stdin -in "{{item}}" > /dev/null
+      register: decrypt_test_result
+      ignore_errors: true
+      with_first_found:
+        - files: "{{ansible_fqdn}}.key.enc"
+          paths: roles/mail/files/ssl/private
+
+    - name: Ensure that the decryption test ran
+      fail: msg="Decryption failed. Make sure the required files are present and that your passphrase is correct"
+      when: decrypt_test_result|skipped
+
+    - name: Ensure that the decryption test succeded
+      fail: msg="Decryption failed. Make sure that your passphrase is correct"
+      when: decrypt_test_result|failed
+
+    - name: Create file with decryption key
+      template: src=roles/common/templates/decrypt_password dest=/root/decrypt_password owner=root group=root mode=0400
+
   roles:
-    - mail
+    - { role: mail, tags: ["mail"] }
+    - { role: xmpp, tags: ["xmpp", "jaber"] }
+
+  post_tasks:
+    - name: Delete file with decryption key
+      file: path=/root/decrypt_password state=absent
+      always_run: true

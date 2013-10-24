@@ -1,0 +1,35 @@
+---
+- name: Create a temporary local build path for this package
+  local_action: raw mkdir -p /tmp/build/{{package}}
+  sudo: false
+
+- name: Grab the tarball from AUR
+  local_action: raw cd /tmp/build/{{package}} && curl -O https://aur.archlinux.org/packages/`echo {{package}} | cut -c 1-2`/{{package}}/{{package}}.tar.gz
+  sudo: false
+
+- name: Extract the tarball
+  local_action: raw cd /tmp/build/{{package}} && tar xzf {{package}}.tar.gz
+  sudo: false
+
+- name: Delete the tarball
+  local_action: raw rm /tmp/build/{{package}}/{{package}}.tar.gz
+  sudo: false
+
+- name: Build the package
+  local_action: raw cd /tmp/build/{{package}}/* && yes | makepkg -rs --noconfirm
+  sudo: false
+
+- name: Upload package to server
+  copy: src={{item}} dest=/tmp
+  with_lines: "ls /tmp/build/{{package}}/*/{{package}}*.xz"
+
+- name: Install package on the server
+  raw: yes | pacman -U /tmp/{{package}}*.xz
+
+- name: Remove package file from server
+  raw: rm /tmp/{{package}}*.xz
+  always_run: true
+
+- name: Clean up, remove the temporary build path again
+  local_action: raw rm -r /tmp/build/{{package}}
+  always_run: true
