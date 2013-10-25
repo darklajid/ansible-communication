@@ -11,6 +11,9 @@
 - name: Grab sasl_dovecot.lib.lua
   get_url: url=http://prosody-modules.googlecode.com/hg/mod_auth_dovecot/auth_dovecot/sasl_dovecot.lib.lua dest=/usr/lib/prosody/modules/mod_auth_dovecot
 
+- name: Install mod_vhosts_sql module
+  template: src=mod_vhosts_sql.lua dest=/usr/lib/prosody/modules/ owner=root group=root mode=0644
+
 - name: Create spool directory for dovecot
   file: path=/var/spool/prosody state=directory
 
@@ -35,6 +38,25 @@
 
 - name: Correct file permissions
   shell: "chmod 0600 /etc/prosody/certs/*"
+
+- name: Create DH param file
+  shell: openssl dhparam -out /etc/prosody/certs/dh-2048.pem 2048
+
+- include: install_lua_dbi.yml
+
+- name: Create DB role
+  command: psql mailserver -c "do $$begin if not exists (select rolname from pg_catalog.pg_roles where rolname='{{item.role}}') then create role {{item.role}} {{item.opts}}; end if; end$$;"
+  sudo: True
+  sudo_user: postgres
+  with_items:
+    - { role: 'prosody', opts: 'WITH LOGIN' }
+
+- name: Grant privileges
+  command: psql mailserver -c "GRANT {{item.privs}} ON {{item.table}} TO {{item.role}}"
+  sudo: True
+  sudo_user: postgres
+  with_items:
+    - { role: 'prosody', privs: 'SELECT', table: 'virtual_domains' }
 
 - name: Install configuration file
   template: src=prosody.cfg.lua dest=/etc/prosody owner=root group=root mode=0644

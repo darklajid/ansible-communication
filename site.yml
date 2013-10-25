@@ -16,23 +16,28 @@
       with_first_found:
         - files: "{{ansible_fqdn}}.key.enc"
           paths: roles/mail/files/ssl/private
+      tags: ["mail", "xmpp"]
 
     - name: Ensure that the decryption test ran
       fail: msg="Decryption failed. Make sure the required files are present and that your passphrase is correct"
       when: decrypt_test_result|skipped
+      tags: ["mail", "xmpp"]
 
     - name: Ensure that the decryption test succeded
       fail: msg="Decryption failed. Make sure that your passphrase is correct"
       when: decrypt_test_result|failed
+      tags: ["mail", "xmpp"]
 
     - name: Create file with decryption key
       template: src=roles/common/templates/decrypt_password dest=/root/decrypt_password owner=root group=root mode=0400
+      tags: ["mail", "xmpp"]
 
   roles:
     - { role: mail, tags: ["mail"] }
-    - { role: xmpp, tags: ["xmpp", "jaber"] }
+    - { role: xmpp, tags: ["xmpp"] }
 
   post_tasks:
     - name: Delete file with decryption key
       file: path=/root/decrypt_password state=absent
       always_run: true
+      tags: ["mail", "xmpp"]

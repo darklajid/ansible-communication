@@ -1,16 +1,24 @@
 My setup for running my own infrastructure
 
-This provides
+This provides:
 
 - Mail via postfix/dovecot, using virtual users
 - Spam protection using dspam and postgrey
 - DKIM signing
 - Full-text search over imap via dovecot-clucene
+- XMPP
+
+Open issues:
+
+- Move the one _required_ (ansible_fqdn) cert into role/common?
+- Support multiple certificates in all services, whereever possible (using sni, if required)
+- prosody only loads the domains _once_ => Needs reload
 
 Planned:
 
-- XMPP
+- NTP
 - CalDAV / CardDAV
+  Radicale? Via pip?
 
 Requirements:
 

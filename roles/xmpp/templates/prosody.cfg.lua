@@ -24,6 +24,7 @@ modules_enabled = {
 		"admin_adhoc"; -- Allows administration via an XMPP client that supports ad-hoc commands
 		"posix"; -- POSIX functionality, sends server to background, enables syslog, etc.
 		"groups"; -- Shared roster support
+		"vhosts_sql";
 }
 
 modules_disabled = { }
@@ -33,6 +34,8 @@ allow_registration = false;
 ssl = {
 	key = "/etc/prosody/certs/{{xmpp_host}}.key";
 	certificate = "/etc/prosody/certs/{{xmpp_host}}.pem";
+	dhparam = "/etc/prosody/certs/dh-2048.pem";
+	ciphers = "EECDH+ECDSA+AESGCM EECDH+aRSA+AESGCM EECDH+ECDSA+SHA384 EECDH+ECDSA+SHA256 EECDH+aRSA+SHA384 EECDH+aRSA+SHA256 EECDH+aRSA+RC4 EECDH EDH+aRSA RC4 !aNULL !eNULL !LOW !3DES !MD5 !EXP !PSK !SRP !DSS !RC4";
 }
 
 c2s_require_encryption = true
@@ -48,8 +51,18 @@ log = {
 	"*syslog"; -- Uncomment this for logging to syslog
 }
 
+sql = {
+        driver = "PostgreSQL";
+        database = "mailserver";
+        username = "prosody";
+	query = "SELECT name FROM virtual_domains";
+}
+
 ----------- Virtual hosts -----------
 -- You need to add a VirtualHost entry for each domain you wish Prosody to serve.
 -- Settings under each VirtualHost entry apply *only* to that host.
 
-VirtualHost "{{xmpp_host}}"
+-- Dummy entry - the real hosts are provided by mod_vhosts_sqlthe real hosts
+-- are provided by mod_vhosts_sqlthe real hosts are provided by
+-- mod_vhosts_sqlthe real hosts are provided by mod_vhosts_sql
+VirtualHost "localhost"

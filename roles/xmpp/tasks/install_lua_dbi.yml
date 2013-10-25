@@ -1,0 +1,28 @@
+---
+- name: Install build requirements
+  pacman: name=binutils,fakeroot,mercurial,git,automake,autoconf,gcc,make state=installed
+
+- name: Create a temporary build folder
+  file: path=/tmp/lua-dbi state=directory
+  sudo: false
+
+- name: Download the tarball
+  get_url: url=http://luadbi.googlecode.com/files/luadbi.0.5.tar.gz dest=/tmp/lua-dbi
+  sudo: false
+
+- name: Extract the tarball
+  command: chdir=/tmp/lua-dbi tar xzf luadbi.0.5.tar.gz
+  sudo: false
+
+- name: Fix include for postgresql
+  command: chdir=/tmp/lua-dbi sed -i 's:postgresql/ :postgresql/server/ :' Makefile
+
+- name: Build luadbi
+  command: chdir=/tmp/lua-dbi make psql
+
+- name: Move resulting files
+  shell: chdir=/tmp/lua-dbi mv DBI.lua /usr/share/lua/5.1/ && mv dbdpostgresql.so /usr/lib/lua/5.1/
+
+- name: Remove the build folder
+  file: path=/tmp/lua-dbi state=absent
+  always_run: true
