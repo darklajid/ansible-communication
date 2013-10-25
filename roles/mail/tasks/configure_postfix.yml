@@ -2,6 +2,12 @@
 - name: Clear the postfix dist files
   shell: for f in `pacman -Ql postfix | grep /etc/postfix | cut -d" " -f2`; do [ ! -f "$f" ] || rm "$f"; done;
 
+- name: Create DH param files
+  shell: openssl dhparam -out /etc/postfix/dh_{{item}}.pem {{item}}
+  with_items:
+    - 512
+    - 1024
+
 - name: Copy configuration files
   template: src={{item}} dest=/etc/postfix owner=root mode=0644
   with_items:
