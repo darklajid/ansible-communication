@@ -1,6 +1,6 @@
 ---
 - name: Install required packages
-  pacman: name=sudo,postgresql,python2-psycopg2,postfix,dovecot,pigeonhole,clucene,opendkim,dspam,postgrey state=installed update_cache=yes
+  pacman: name=sudo,postgresql,python2-psycopg2,postfix,dovecot,pigeonhole,clucene,opendkim,dspam,postgrey state=installed
 
 - include: ../../common/tasks/install_from_aur_build_local.yml package=dovecot2-antispam-hg
 

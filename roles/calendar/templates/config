@@ -1,0 +1,46 @@
+# -*- mode: conf -*-
+# vim:ft=cfg
+
+[server]
+hosts = 0.0.0.0:5232
+daemon = True
+pid = /run/radicale/radicale.pid
+ssl = True
+certificate = /etc/radicale/certs/{{ansible_fqdn}}.pem
+key = /etc/radicale/certs/{{ansible_fqdn}}.key
+dns_lookup = True
+
+[auth]
+type = IMAP
+
+public_users = public
+private_users = private
+
+imap_hostname = localhost
+imap_port = 143
+imap_ssl = False
+
+[rights]
+# Rights management method
+# Value: None | owner_only | owner_write | from_file
+type = None
+
+# File for rights management from_file
+file = ~/.config/radicale/rights
+
+[storage]
+#type = database
+#database_url = postgresql://radicale@/radicale
+type = filesystem
+filesystem_folder = /var/spool/radicale/collections
+
+[logging]
+config = /etc/radicale/logging
+debug = False
+full_environment = False
+
+[headers]
+Access-Control-Allow-Origin = *
+Access-Control-Allow-Methods = DELETE, HEAD, GET, MKCALENDAR, MKCOL,MOVE, OPTIONS, PROPFIND, PROPPATCH, PUT, REPORT
+Access-Control-Allow-Headers = Depth, X-client, Authorization,Content-Type, If-None-Match, If-Match
+

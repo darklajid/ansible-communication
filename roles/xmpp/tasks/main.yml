@@ -1,6 +1,6 @@
 ---
 - name: Install required packages
-  pacman: name=prosody,lua51-sec,lua51-zlib,lua51-socket state=installed update_cache=yes
+  pacman: name=prosody,lua51-sec,lua51-zlib,lua51-socket state=installed
 
 - name: Create mod_auth_dovecot directory
   file: path=/usr/lib/prosody/modules/mod_auth_dovecot state=directory
@@ -26,12 +26,11 @@
 
 - name: Copy the certificate files
   copy: src={{item}} dest=/etc/prosody/certs owner=prosody group=prosody mode=0640
-  with_fileglob:
-  - certs/*
+  with_lines: ls ../../common/files/certs/*
 
 - name: Decrypt certificate keys
-  shell: openssl aes-256-cbc -d -pass "file:/root/decrypt_password" -in "/etc/prosody/{{item}}" -out "/etc/prosody/`echo {{item}} | sed 's/.enc$//'`"
-  with_lines: ls certs/*.enc
+  shell: openssl aes-256-cbc -d -pass "file:/root/decrypt_password" -in "/etc/prosody/certs/`basename "{{item}}"`" -out "/etc/prosody/certs/`basename "{{item}}" | sed 's/.enc$//'`"
+  with_lines: ls ../../common/files/certs/*.enc
 
 - name: Correct file ownership
   shell: "chown prosody:prosody /etc/prosody/certs/*"

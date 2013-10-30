@@ -1,0 +1,20 @@
+[loggers]
+keys = root
+
+[handlers]
+keys = syslog
+
+[formatters]
+keys = full
+
+[logger_root]
+level = WARN
+handlers = syslog
+
+[handler_syslog]
+class = handlers.SysLogHandler
+args = ('/dev/log', handlers.SysLogHandler.LOG_LOCAL4)
+formatter = full
+
+[formatter_full]
+format = %(asctime)s - %(levelname)s: %(message)s

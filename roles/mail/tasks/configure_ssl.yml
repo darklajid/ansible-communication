@@ -1,11 +1,11 @@
 ---
 - name: Copy encrypted ssl keys
-  copy: src=ssl/private/{{item}} dest=/etc/ssl/private/ owner=root group=root mode=0600
-  with_lines: ls ssl/private
+  copy: src={{item}} dest=/etc/ssl/private/ owner=root group=root mode=0600
+  with_lines: ls ../../common/files/certs/*.enc
 
 - name: Decrypt ssl keys
-  shell: openssl aes-256-cbc -d -pass "file:/root/decrypt_password" -in "/etc/ssl/private/{{item}}" -out "/etc/ssl/private/`echo {{item}} | sed 's/.enc$//'`"
-  with_lines: ls ssl/private
+  shell: openssl aes-256-cbc -d -pass "file:/root/decrypt_password" -in "/etc/ssl/private/`basename "{{item}}"`" -out "/etc/ssl/private/`basename "{{item}}" | sed 's/.enc$//'`"
+  with_lines: ls ../../common/files/certs/*.enc
 
 - name: Correct key ownership
   shell: "chown root:root /etc/ssl/private/*"
@@ -14,5 +14,5 @@
   shell: "chmod 0600 /etc/ssl/private/*"
 
 - name: Copy ssl certificates
-  copy: src=ssl/certs/{{item}} dest=/etc/ssl/certs/ owner=root group=root mode=0644
-  with_lines: ls ssl/certs
+  copy: src={{item}} dest=/etc/ssl/certs/ owner=root group=root mode=0644
+  with_lines: ls ../../common/files/certs/*.pem

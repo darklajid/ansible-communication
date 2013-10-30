@@ -48,7 +48,7 @@ dovecot_auth_socket = "/var/spool/prosody/private/auth"
 auth_append_host = true
 
 log = {
-	"*syslog"; -- Uncomment this for logging to syslog
+	warn = "*syslog"; -- Uncomment this for logging to syslog
 }
 
 sql = {

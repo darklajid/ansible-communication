@@ -1,0 +1,58 @@
+---
+- name: Install required packages
+  pacman: name=python-sqlalchemy,python-psycopg2 state=installed
+
+- name: Download radicale
+  get_url: url=https://github.com/Kozea/Radicale/tarball/master dest=/tmp/Kozea-Radicale-master.tgz
+  sudo: False
+
+- name: Extract tarball
+  command: chdir=/tmp tar xzf Kozea-Radicale-master.tgz
+  sudo: False
+
+- name: Delete tarball
+  command: rm /tmp/Kozea-Radicale-master.tgz
+  sudo: False
+
+- name: Install radicale
+  shell: cd /tmp/Kozea-Radicale* && python setup.py install
+
+- name: Remove source directory
+  shell: rm -r /tmp/Kozea-Radicale*
+
+- name: Create radicale user
+  user: name=radicale system=yes
+
+- name: Create /run folder
+  file: path=/run/radicale state=directory owner=radicale group=root mode=0750
+
+- name: Create spool folder
+  file: path=/var/spool/radicale state=directory owner=radicale group=root mode=0750
+
+- name: Install service file
+  template: src=radicale.service dest=/usr/lib/systemd/system/ mode=0644 owner=root group=root
+
+- name: Create configuration folder
+  file: path=/etc/radicale/ state=directory owner=root group=root mode=0755
+
+- name: Create certificates folder
+  file: path=/etc/radicale/certs state=directory owner=radicale group=root mode=0700
+
+- name: Copy the certificate files
+  copy: src={{item}} dest=/etc/radicale/certs owner=radicale group=root mode=0400
+  with_lines: ls ../../common/files/certs/*
+
+- name: Decrypt certificate keys
+  shell: openssl aes-256-cbc -d -pass "file:/root/decrypt_password" -in "/etc/radicale/certs/`basename "{{item}}"`" -out "/etc/radicale/certs/`basename "{{item}}" | sed 's/.enc$//'`"
+  with_lines: ls ../../common/files/certs/*.enc
+
+- name: Correct file ownership
+  shell: "chown radicale:root /etc/radicale/certs/*"
+
+- name: Copy configuration files
+  template: src={{item}} dest=/etc/radicale owner=radicale group=root mode=0640
+  with_items:
+    - config
+    - logging
+  notify:
+    - restart radicale

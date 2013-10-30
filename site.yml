@@ -15,29 +15,35 @@
       ignore_errors: true
       with_first_found:
         - files: "{{ansible_fqdn}}.key.enc"
-          paths: roles/mail/files/ssl/private
-      tags: ["mail", "xmpp"]
+          paths: roles/common/files/certs
+      tags: ["mail", "xmpp", "calendar", "contacts"]
 
     - name: Ensure that the decryption test ran
       fail: msg="Decryption failed. Make sure the required files are present and that your passphrase is correct"
       when: decrypt_test_result|skipped
-      tags: ["mail", "xmpp"]
+      tags: ["mail", "xmpp", "calendar", "contacts"]
 
     - name: Ensure that the decryption test succeded
       fail: msg="Decryption failed. Make sure that your passphrase is correct"
       when: decrypt_test_result|failed
-      tags: ["mail", "xmpp"]
+      tags: ["mail", "xmpp", "calendar", "contacts"]
 
     - name: Create file with decryption key
       template: src=roles/common/templates/decrypt_password dest=/root/decrypt_password owner=root group=root mode=0400
-      tags: ["mail", "xmpp"]
+      tags: ["mail", "xmpp", "calendar", "contacts"]
+
+    - name: Update the package db and the system
+      shell: yes | pacman -Suy --noconfirm
+      tags: ["mail", "xmpp", "calendar", "contacts"]
 
   roles:
+    - { role: ntp, tags: ["ntp"] }
     - { role: mail, tags: ["mail"] }
     - { role: xmpp, tags: ["xmpp"] }
+    - { role: calendar, tags: ["calendar", "contacts"] }
 
   post_tasks:
     - name: Delete file with decryption key
       file: path=/root/decrypt_password state=absent
       always_run: true
-      tags: ["mail", "xmpp"]
+      tags: ["mail", "xmpp", "calendar", "contacts"]

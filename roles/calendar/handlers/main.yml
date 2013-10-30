@@ -1,0 +1,3 @@
+---
+- name: restart radicale 
+  service: name=radicale enabled=yes state=restarted

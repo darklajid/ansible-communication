@@ -2,23 +2,29 @@ My setup for running my own infrastructure
 
 This provides:
 
+- NTP (as a prerequisite)
 - Mail via postfix/dovecot, using virtual users
 - Spam protection using dspam and postgrey
 - DKIM signing
 - Full-text search over imap via dovecot-clucene
-- XMPP
+- XMPP for all mail accounts
 
 Open issues:
 
-- Move the one _required_ (ansible_fqdn) cert into role/common?
-- Support multiple certificates in all services, whereever possible (using sni, if required)
-- prosody only loads the domains _once_ => Needs reload
+- test sieve
+- support multiple certificates in dovecot (SNI)
+- radicale is installed from git, which is less than optimal for reproducable builds..
+- logrotate
+- reduce overall logging
 
-Planned:
+Roadmap:
 
-- NTP
-- CalDAV / CardDAV
-  Radicale? Via pip?
+- Evaluate Mozilla Persona / OpenID
+- Offer CalDAV/CardDAV web interfaces?
+  CalDavZAP & CardDavMate?
+- Offer webmail?
+  Roundcube?
+- Administrative interface for domains/users
 
 Requirements:
 

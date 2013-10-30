@@ -52,12 +52,17 @@ local function load_vhosts_from_db()
 
 	local host_config = { enable = true };
 	for row in stmt:rows() do
-		module:log("debug", "Activating host %s", row[1]);
-		hostmanager.activate(row[1], host_config);
+		if not hosts[row[1]] then
+        		module:log("debug", "Activating host %s", row[1]);
+			hostmanager.activate(row[1], host_config);
+		else
+			module:log("debug", "Host %s is already active, skipping", row[1]);
+		end
 	end
-
-	assert(con:close());
+	if stmt then stmt:close(); end
+	if con then con:close(); end
 end
 
 module:hook("server-started", load_vhosts_from_db);
+module:hook("config-reloaded", load_vhosts_from_db);
 

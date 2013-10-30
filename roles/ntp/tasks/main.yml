@@ -1,0 +1,8 @@
+---
+- name: Install required packages
+  pacman: name=chrony state=installed
+
+- name: Copy the configuration file
+  template: src=chrony.conf dest=/etc/ owner=root group=root mode=0644
+  notify:
+    - restart chrony
