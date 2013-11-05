@@ -33,7 +33,7 @@
   with_lines: ls ../../common/files/certs/*.enc
 
 - name: Correct file ownership
-  shell: "chown prosody:prosody /etc/prosody/certs/*"
+  shell: "chown prosody:root /etc/prosody/certs/*"
 
 - name: Correct file permissions
   shell: "chmod 0600 /etc/prosody/certs/*"
