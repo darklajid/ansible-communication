@@ -56,7 +56,10 @@ local function load_vhosts_from_db()
 	};
 	for row in stmt:rows() do
 		local host = row[1];
-		local ssl_config = module:get_option("ssl");
+		local ssl_config = {};
+		for key, value in pairs(module:get_option("ssl")) do
+			ssl_config[key] = value;
+		end
 		ssl_config["key"] = "/etc/prosody/certs/"..host..".key";
 		ssl_config["certificate"] = "/etc/prosody/certs/"..host..".pem";
 
