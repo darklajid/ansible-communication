@@ -3,6 +3,7 @@ module:set_global();
 local log = require "util.logger".init("vhosts_sql");
 local dbi = require "DBI"
 local hostmanager = require "core.hostmanager";
+local configmanager = require "core.configmanager";
 
 local params = module:get_option("sql");
 local prosody = _G.prosody;
@@ -50,13 +51,22 @@ local function load_vhosts_from_db()
 	local stmt, err = get_statement(con);
 	if not stmt then return; end;
 
-	local host_config = { enable = true };
+	local host_config = { 
+		enable = true;
+	};
 	for row in stmt:rows() do
-		if not hosts[row[1]] then
-        		module:log("debug", "Activating host %s", row[1]);
-			hostmanager.activate(row[1], host_config);
+		local host = row[1];
+		local ssl_config = module:get_option("ssl");
+		ssl_config["key"] = "/etc/prosody/certs/"..host..".key";
+		ssl_config["certificate"] = "/etc/prosody/certs/"..host..".pem";
+
+		if not hosts[host] then
+        		module:log("debug", "Activating host %s", host);
+			configmanager.set(host, "defined", true);
+			configmanager.set(host, "ssl", ssl_config);
+			hostmanager.activate(host, host_config);
 		else
-			module:log("debug", "Host %s is already active, skipping", row[1]);
+			module:log("debug", "Host %s is already active, skipping", host);
 		end
 	end
 	if stmt then stmt:close(); end
@@ -65,4 +75,3 @@ end
 
 module:hook("server-started", load_vhosts_from_db);
 module:hook("config-reloaded", load_vhosts_from_db);
-
