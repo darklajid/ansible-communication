@@ -48,6 +48,7 @@
     - { role: 'mail_select', privs: 'SELECT', table: 'virtual_domains' }
     - { role: 'mail_select', privs: 'SELECT', table: 'virtual_aliases' }
     - { role: 'mail_select', privs: 'SELECT', table: 'virtual_users' }
+    - { role: 'mail_select', privs: 'SELECT', table: 'recipient_access' }
     # Grant privileges for dspam only
     #- { role: 'dspam', privs: 'SELECT', table: 'virtual_users' }
     #- { role: 'dspam', privs: 'ALL', table: 'dspam_preferences' }

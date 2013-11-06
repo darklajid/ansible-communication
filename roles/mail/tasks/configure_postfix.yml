@@ -14,9 +14,8 @@
     - postfix/main.cf
     - postfix/master.cf
     - postfix/pgsql_virtual_alias_maps.cf
-    - postfix/pgsql_virtual_domains_maps.cf
+    - postfix/pgsql_virtual_domains.cf
     - postfix/pgsql_virtual_mailbox_maps.cf
+    - postfix/pgsql_recipient_access.cf
     - postfix/dspam_filter_access
   notify: restart postfix
-
-# TODO: gpasswd -a postfix postgres ?

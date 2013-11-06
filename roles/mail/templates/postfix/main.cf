@@ -45,10 +45,15 @@ broken_sasl_auth_clients = yes
 smtpd_sasl_security_options = noanonymous
 smtpd_sasl_tls_security_options = noanonymous
 
-smtpd_recipient_restrictions = permit_sasl_authenticated
-        reject_unauth_destination
-        check_policy_service unix:/var/spool/postfix/postgrey/socket
-	check_client_access pcre:/etc/postfix/dspam_filter_access
+smtpd_recipient_restrictions = reject_unauth_destination,
+	check_recipient_access pgsql:/etc/postfix/pgsql_recipient_access.cf,
+	reject_non_fqdn_recipient,
+	reject_non_fqdn_sender,
+	reject_unknown_recipient_domain,
+	reject_unknown_sender_domain,
+	reject_unauth_pipelining,
+        check_policy_service unix:/var/spool/postfix/postgrey/socket,
+	check_client_access pcre:/etc/postfix/dspam_filter_access,
         permit
 
 milter_default_action = accept
@@ -56,7 +61,7 @@ smtpd_milters = unix:/var/spool/postfix/opendkim/socket
 non_smtpd_milters = $smtpd_milters
 
 virtual_alias_maps = pgsql:/etc/postfix/pgsql_virtual_alias_maps.cf
-virtual_mailbox_domains = pgsql:/etc/postfix/pgsql_virtual_domains_maps.cf
+virtual_mailbox_domains = pgsql:/etc/postfix/pgsql_virtual_domains.cf
 virtual_mailbox_maps = pgsql:/etc/postfix/pgsql_virtual_mailbox_maps.cf
 virtual_uid_maps = static:8
 virtual_gid_maps = static:12

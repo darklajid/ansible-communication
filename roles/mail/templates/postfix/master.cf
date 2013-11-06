@@ -50,6 +50,6 @@ scache    unix  -       -       n       -       1       scache
 # ====================================================================
 
 dovecot   unix  -       n       n       -       -       pipe
-  flags=DRhu user=mail:mail argv=/usr/lib/dovecot/deliver -f ${sender} -d ${recipient}
+  flags=DRhu user=mail:dspam argv=/usr/lib/dovecot/dovecot-lda -f ${sender} -d ${recipient}
 dspam     unix  -       n       n       -       10      pipe
   flags=Ru user=mail:dspam argv=/usr/bin/dspam --deliver=innocent,spam --user $recipient -f ${sender} -d ${recipient}

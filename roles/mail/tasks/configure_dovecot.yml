@@ -13,6 +13,9 @@
 - name: Set /var/spool/mail ownership
   file: path=/var/spool/mail state=directory owner={{maildir_uid.stdout}} group={{maildir_gid.stdout}}
 
+- name: Add mail to the dspam group
+  command: gpasswd -a mail dspam
+
 - name: Copy configuration files
   template: src={{item}} dest=/etc/dovecot mode=0644
   with_items:
