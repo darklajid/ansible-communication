@@ -11,8 +11,9 @@ This provides:
 
 Open issues:
 
+- postfix, add smtpd_sender_login_maps to allow sending from aliases?
+- postfix, think about adding proxymap to pool connections?
 - test sieve and managedsieve
-- auto-create imap folders (Spam, Sent, more?)
 - radicale is installed from git, which is less than optimal for reproducable builds..
 - backup & restore scripts
 
