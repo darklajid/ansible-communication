@@ -14,7 +14,6 @@ Open issues:
 - test sieve
 - radicale is installed from git, which is less than optimal for reproducable builds..
 - logrotate
-- crontab: Reload prosody
 - reduce overall logging
 - backup & restore scripts
 

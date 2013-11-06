@@ -57,6 +57,12 @@
   with_items:
     - { role: 'prosody', privs: 'SELECT', table: 'virtual_domains' }
 
+- name: Add cronjob to reload the domains periodically
+  cron: 
+    minute="*/5"
+    name="Periodically reload prosody to activate new domains from the db"
+    job="prosodyctl reload > /dev/null"
+
 - name: Install configuration file
   template: src=prosody.cfg.lua dest=/etc/prosody owner=root group=root mode=0644
   notify: restart prosody
