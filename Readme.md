@@ -11,15 +11,15 @@ This provides:
 
 Open issues:
 
-- test sieve
+- test sieve and managedsieve
+- auto-create imap folders (Spam, Sent, more?)
 - radicale is installed from git, which is less than optimal for reproducable builds..
-- logrotate
-- reduce overall logging
 - backup & restore scripts
 
 Roadmap:
 
 - Evaluate Mozilla Persona / OpenID
+- Evaluate bitmessage
 - Offer CalDAV/CardDAV web interfaces?
   CalDavZAP & CardDavMate?
 - Offer webmail?
